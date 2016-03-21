@@ -1,4 +1,5 @@
 import json
+import os
 import zipfile
 
 from packaging.version import parse as parse_version
@@ -33,7 +34,19 @@ def devpiserver_on_upload(stage, project, version, link):
             return
         metadata = extract_metadata_from_wheel_file(link.entry.file_os_path())
         linkstore = stage.get_linkstore_perstage(link.project, link.version)
-        json_path = '%s/%s/+f/%s.json' % (linkstore.filestore.storedir, stage.name, project)
+        project_dir = '%s/%s/+f/%s' % (linkstore.filestore.storedir, stage.name, project)
+
+        if not os.path.exists(project_dir):
+            os.mkdir(project_dir)
+
+        json_path = '%s/%s-%s.json' % (project_dir, project, new_version)
         with open(json_path, 'w') as fd:
             fd.write(json.dumps(metadata))
+
         threadlog.info("Stored %s to: %s", metadata, json_path)
+
+        # We symlink the latest version
+        latest_version_path = '%s/%s.json' % (project_dir, project)
+        if os.path.exists(latest_version_path):
+            os.unlink(lastest_version_path)
+        os.symlink(json_path, latest_version_path)
