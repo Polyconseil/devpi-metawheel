@@ -13,7 +13,7 @@ def extract_metadata_from_wheel_file(wheel_filename):
                 return json.loads(zf.open(meta).read().decode('utf8'))
 
 
-def devpiserver_on_upload(stage, projectname, version, link):
+def devpiserver_on_upload(stage, project, version, link):
     """ called when a file is uploaded to a private stage for
     a projectname/version.  link.entry.file_exists() may be false because
     a more recent revision deleted the file (and files are not revisioned).
@@ -27,13 +27,13 @@ def devpiserver_on_upload(stage, projectname, version, link):
     if link.entry and link.entry.file_exists() and link.entry._filepath.endswith('.whl'):
         threadlog.info("Wheel detected: %s", link.entry._filepath)
         new_version = parse_version(version)
-        latest_version = parse_version(stage.get_latest_version_perstage(projectname))
+        latest_version = parse_version(stage.get_latest_version_perstage(project))
         if latest_version > new_version:
             threadlog.debug("A newer release has already been uploaded: %s - nothing to do", latest_current_version)
             return
         metadata = extract_metadata_from_wheel_file(link.entry._filepath)
         linkstore = stage.get_linkstore_perstage(link.projectname, link.version)
-        json_path = '%s/%s/+f/%s.json' % (linkstore.filestore.storedir, stage.name, projectname)
+        json_path = '%s/%s/+f/%s.json' % (linkstore.filestore.storedir, stage.name, project)
         with open(json_path, 'w') as fd:
             fd.write(json.dumps(metadata))
         threadlog.info("Stored %s to: %s", metadata, json_path)
