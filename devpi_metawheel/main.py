@@ -24,15 +24,15 @@ def devpiserver_on_upload(stage, project, version, link):
     store its metadata in json file at the root of index/+f/ directory.
     With the standard config with nginx, nginx will directly serve this file.
     """
-    if link.entry and link.entry.file_exists() and link.entry._filepath.endswith('.whl'):
-        threadlog.info("Wheel detected: %s", link.entry._filepath)
+    if link.entry and link.entry.file_exists() and link.entry.basename.endswith('.whl'):
+        threadlog.info("Wheel detected: %s", link.entry.basename)
         new_version = parse_version(version)
         latest_version = parse_version(stage.get_latest_version_perstage(project))
         if latest_version > new_version:
-            threadlog.debug("A newer release has already been uploaded: %s - nothing to do", latest_current_version)
+            threadlog.debug("A newer release has already been uploaded: %s - nothing to do", latest_version)
             return
-        metadata = extract_metadata_from_wheel_file(link.entry._filepath)
-        linkstore = stage.get_linkstore_perstage(link.projectname, link.version)
+        metadata = extract_metadata_from_wheel_file(link.entry.file_os_path())
+        linkstore = stage.get_linkstore_perstage(link.project, link.version)
         json_path = '%s/%s/+f/%s.json' % (linkstore.filestore.storedir, stage.name, project)
         with open(json_path, 'w') as fd:
             fd.write(json.dumps(metadata))
