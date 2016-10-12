@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name="devpi-metawheel",
     description=open('README').read(),
-    version='0.2',
+    version='0.3',
     author="Polyconseil",
     author_email="opensource+devpi-metawheel@polyconseil.fr",
     url="https://github.com/Polyconseil/devpi-metawheel",
