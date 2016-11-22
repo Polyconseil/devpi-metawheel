@@ -46,7 +46,7 @@ def devpiserver_on_upload(stage, project, version, link):
         threadlog.info("Stored %s to: %s", metadata, json_path)
 
         # We symlink the latest version
-        latest_version_path = '%s/%s.json' % (project_dir, project)
-        if os.path.exists(latest_version_path):
-            os.unlink(lastest_version_path)
-        os.symlink(json_path, latest_version_path)
+        symlink_path = '%s.json' % project
+        if os.path.exists(symlink_path):
+            os.unlink(symlink_path)
+        os.symlink(json_path, symlink_path)
